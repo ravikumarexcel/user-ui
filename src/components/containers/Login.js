@@ -5,6 +5,7 @@ import './Login.css';
 import logo from './../../logo.svg';
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
+import logMessage from '../../utils/logMessage';
 
 const Login = () => {
   // Define the API endpoint
@@ -35,6 +36,7 @@ const Login = () => {
           const token = response.data.token;
           // Save the token to localStorage or a secure storage method
           localStorage.setItem('token', token);
+          logMessage('info', 'Login info', response.data);
           navigate('/dashboard');
         })
         .catch(error => console.log(error));
