@@ -51,13 +51,18 @@ const UserList = () => {
     };
 
     return (
-        <div>
-            <h1>User List</h1>
-            <div class="float-right p-2">
-                <Button variant="primary" onClick={handleShow}>
-                    Launch demo modal
-                </Button>
+        <div className="container">
+            <div class="row">
+                <div class="col">
+                    <h1>User List</h1>
+                </div>
+                <div class="col">
+                </div>
+                <div class="col">
+                </div>
             </div>
+
+
             <table className="table table-hover">
                 <thead>
                     <tr>
@@ -65,7 +70,13 @@ const UserList = () => {
                         <th scope="col">Name</th>
                         <th scope="col">Email</th>
                         <th scope="col">Phone</th>
-                        <th scope="col"></th>
+                        <th scope="col">
+                            <div class="float-right">
+                                <Button variant="primary" onClick={handleShow}>
+                                    Add new
+                                </Button>
+                            </div>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -76,8 +87,10 @@ const UserList = () => {
                             <td>{user.email}</td>
                             <td>{user.phone}</td>
                             <td>
-                                <button type="button" class="btn btn-primary" onClick={() => handleSelectItem(user)}>Edit</button>
-                                <button type="button" class="btn btn-secondary" onClick={() => handleSelectItemDelete(user)}>Delete</button>
+                                <div class="float-right">
+                                    <button type="button" class="btn btn-primary" onClick={() => handleSelectItem(user)}>Edit</button>
+                                    <button type="button" class="btn btn-secondary ms-2" onClick={() => handleSelectItemDelete(user)}>Delete</button>
+                                </div>
                             </td>
                         </tr>
                     ))}
