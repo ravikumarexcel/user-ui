@@ -27,9 +27,11 @@ const UserList = () => {
             .catch(error => console.error('Error fetching users:', error));
     }, []);
 
-    const handleDeleteUser = (userId) => {
+    const handleDeleteUser = () => {
+        
         // Delete user from the list
-        setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
+        setUsers(prevUsers => prevUsers.filter(user => user.id !== selectedItem.id));
+        setShowdelete(false);
     };
 
     const handleAddUser = () => {
