@@ -8,49 +8,61 @@ import Modal from 'react-bootstrap/Modal';
 const UserList = () => {
     const [users, setUsers] = useState([]);
     const [newUser, setNewUser] = useState({ name: '', email: '' });
-
     const [show, setShow] = useState(false);
     const [showdelete, setShowdelete] = useState(false);
+    const [selectedItem, setSelectedItem] = useState({ name: '', email: '' });
 
     const handleClose = () => setShow(false);
     const handleCloseDelete = () => setShowdelete(false);
     const handleShow = () => setShow(true);
-    // const handleShowdelete = () => setShowdelete(true);
-
-    const [selectedItem, setSelectedItem] = useState({ name: '', email: '' });
-
 
     useEffect(() => {
         // Fetch users from the API
-        axios.get('https://jsonplaceholder.typicode.com/users')
+        axios.get('http://localhost:3002/users')
             .then(response => setUsers(response.data))
             .catch(error => console.error('Error fetching users:', error));
     }, []);
 
     const handleDeleteUser = () => {
-        
-        // Delete user from the list
-        setUsers(prevUsers => prevUsers.filter(user => user.id !== selectedItem.id));
-        setShowdelete(false);
+        // Delete user from the API
+        axios.delete(`http://localhost:3002/users/${selectedItem.id}`)
+            .then(response => {
+                // If the deletion was successful, update the local state
+                setUsers(prevUsers => prevUsers.filter(user => user.id !== selectedItem.id));
+                setShowdelete(false);
+            })
+            .catch(error => {
+                console.error('Error deleting user:', error);
+                // Handle the error if needed
+            });
     };
 
     const handleAddUser = () => {
-        // Add a new user to the list
-        setUsers(prevUsers => [...prevUsers, newUser]);
-        setNewUser({ name: '', email: '' });
-    };
-    // Event handler for selecting an item
+      // Add a new user to the API
+      axios.post('http://localhost:3002/users', newUser)
+          .then(response => {
+              // If the addition was successful, update the local state
+              setUsers(prevUsers => [...prevUsers, response.data]);
+              setNewUser({ name: '', email: '' });
+              setShow(false); // Close the modal after adding a new user
+          })
+          .catch(error => {
+              console.error('Error adding user:', error);
+              // Handle the error if needed
+          });
+  };
+  
+
     const handleSelectItem = (item) => {
         setSelectedItem(item);
-        console.log(item);
         setShow(true);
     };
-    // Event handler for selecting an item
+
     const handleSelectItemDelete = (item) => {
         setSelectedItem(item);
-        console.log(item);
         setShowdelete(true);
     };
+
 
     return (
         <div className="container">
@@ -118,13 +130,11 @@ const UserList = () => {
                 </Modal.Footer>
             </Modal>
 
-            <Modal show={showdelete} onHide={handleCloseDelete}>
+              <Modal show={showdelete} onHide={handleCloseDelete}>
                 <Modal.Header closeButton>
                     <Modal.Title>Delete user</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>Are you sure you want to delete!
-                    {selectedItem.name}
-                </Modal.Body>
+                <Modal.Body>Are you sure you want to delete! {selectedItem.name}</Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleCloseDelete}>
                         Close
@@ -134,11 +144,13 @@ const UserList = () => {
                     </Button>
                 </Modal.Footer>
             </Modal>
+
             <div>
                 {users.map(user => (
                     <User key={user.id} user={user} onDelete={handleDeleteUser} />
                 ))}
             </div>
+            
             <div>
                 <h2>Add New User</h2>
                 <input
