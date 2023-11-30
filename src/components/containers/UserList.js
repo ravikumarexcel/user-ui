@@ -1,22 +1,35 @@
+// UserList.js
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Button, Modal, Dropdown } from 'react-bootstrap';
+import './UserList.css';
 
 const User = ({ user, onDelete }) => {
   const handleDelete = () => {
     onDelete(user);
   };
+
+//   return (
+//     <td>
+//       <div className="float-right">
+//         <Button variant="danger" onClick={handleDelete}>
+//           Delete
+//         </Button>
+//       </div>
+//     </td>
+//   );
 };
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState({ name: '', email: '', phone: '' });
   const [show, setShow] = useState(false);
-  const [showdelete, setShowdelete] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
   const [selectedItem, setSelectedItem] = useState({ id: null, name: '', email: '', phone: '' });
 
   const handleClose = () => setShow(false);
-  const handleCloseDelete = () => setShowdelete(false);
+  const handleCloseDelete = () => setShowDelete(false);
   const handleShow = () => setShow(true);
 
   useEffect(() => {
@@ -32,7 +45,7 @@ const UserList = () => {
       .then(response => {
         // If the deletion was successful, update the local state
         setUsers(prevUsers => prevUsers.filter(user => user.id !== selectedItem.id));
-        setShowdelete(false);
+        setShowDelete(false);
       })
       .catch(error => {
         console.error('Error deleting user:', error);
@@ -62,7 +75,7 @@ const UserList = () => {
 
   const handleSelectItemDelete = (item) => {
     setSelectedItem(item);
-    setShowdelete(true);
+    setShowDelete(true);
   };
 
   return (
@@ -92,11 +105,12 @@ const UserList = () => {
               <td>{user.name}</td>
               <td>{user.email}</td>
               <td>{user.phone}</td>
+
               <td>
                 <div className="float-right">
                   <Dropdown>
-                    <Dropdown.Toggle variant="secondary" id={`dropdownMenuButton-${user.id}`}>
-                      {/* Three dots icon or any other icon you want */}
+                    <Dropdown.Toggle variant="secondary" id={`dropdownMenuButton-${user.id}`} className="custom-dropdown-toggle">
+                      <div className="three-dots">...</div>
                     </Dropdown.Toggle>
 
                     <Dropdown.Menu>
@@ -106,9 +120,9 @@ const UserList = () => {
                   </Dropdown>
                 </div>
               </td>
-              {/* Include the User component for each user */}
+
               <td>
-                <User user={user} onDelete={handleDeleteUser} />
+                <User user={user} onDelete={handleSelectItemDelete} />
               </td>
             </tr>
           ))}
@@ -154,7 +168,7 @@ const UserList = () => {
         </Modal.Footer>
       </Modal>
 
-      <Modal show={showdelete} onHide={handleCloseDelete}>
+      <Modal show={showDelete} onHide={handleCloseDelete}>
         <Modal.Header closeButton>
           <Modal.Title>Delete user</Modal.Title>
         </Modal.Header>
