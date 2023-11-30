@@ -1,0 +1,36 @@
+/* UserList.css */
+
+.custom-dropdown-toggle {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+  
+  .custom-dropdown-toggle .three-dots {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    color: black;
+    /* background: rgb(12, 11, 11);  */
+  }
+   
+  .custom-dropdown-toggle::after {
+    display: none !important;
+  }
+  
+  .dropdown-menu {
+    /* Add your styles for the dropdown menu if needed */
+  }
+  
+  /* Additional styling for the Modal if needed */
+  .modal-header {
+    /* background-color: #050708; */
+    color: white;
+  }
+
+  .modal-footer {
+    background-color: rgb(243, 239, 239);
+  }
+  
