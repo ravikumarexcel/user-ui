@@ -1,24 +1,15 @@
 // UserList.js
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Button, Modal, Dropdown } from 'react-bootstrap';
 import './UserList.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FaEllipsisV } from "react-icons/fa";
 
 const User = ({ user, onDelete }) => {
   const handleDelete = () => {
     onDelete(user);
   };
-
-//   return (
-//     <td>
-//       <div className="float-right">
-//         <Button variant="danger" onClick={handleDelete}>
-//           Delete
-//         </Button>
-//       </div>
-//     </td>
-//   );
 };
 
 const UserList = () => {
@@ -30,7 +21,11 @@ const UserList = () => {
 
   const handleClose = () => setShow(false);
   const handleCloseDelete = () => setShowDelete(false);
-  const handleShow = () => setShow(true);
+
+  const handleShow = () => {
+    setSelectedItem({ id: null, name: '', email: '', phone: '' });
+    setShow(true);
+  };
 
   useEffect(() => {
     // Fetch users from the API
@@ -59,13 +54,38 @@ const UserList = () => {
       .then(response => {
         // If the addition was successful, update the local state
         setUsers(prevUsers => [...prevUsers, response.data]);
-        setNewUser({ name: '', email: '', phone: '' });
         setShow(false); // Close the modal after adding a new user
       })
       .catch(error => {
         console.error('Error adding user:', error);
         // Handle the error if needed
       });
+  };
+
+  const handleEditUser = () => {
+    // Update existing user in the API
+    axios.put(`http://localhost:3002/users/${selectedItem.id}`, selectedItem)
+      .then(response => {
+        // If the update was successful, update the local state
+        setUsers(prevUsers =>
+          prevUsers.map(user => (user.id === selectedItem.id ? response.data : user))
+        );
+        setShow(false); // Close the modal after editing a user
+      })
+      .catch(error => {
+        console.error('Error editing user:', error);
+        // Handle the error if needed
+      });
+  };
+
+  const handleModalAction = () => {
+    if (selectedItem.id) {
+      // If an existing user is selected, perform edit
+      handleEditUser();
+    } else {
+      // Otherwise, add a new user
+      handleAddUser();
+    }
   };
 
   const handleSelectItem = (item) => {
@@ -106,20 +126,22 @@ const UserList = () => {
               <td>{user.email}</td>
               <td>{user.phone}</td>
 
-              <td>
-                <div className="float-right">
-                  <Dropdown>
-                    <Dropdown.Toggle variant="secondary" id={`dropdownMenuButton-${user.id}`} className="custom-dropdown-toggle">
-                      <div className="three-dots">...</div>
-                    </Dropdown.Toggle>
+             <td>
+                 <div className="float-right">
+             <Dropdown>
+               <Dropdown.Toggle variant="secondary" id={`dropdownMenuButton-${user.id}`} className="custom-dropdown-toggle"> 
+              <div className="three-dots">
+                  <FaEllipsisV className="your-custom-class" />
+              </div>
+              </Dropdown.Toggle> 
 
-                    <Dropdown.Menu>
-                      <Dropdown.Item onClick={() => handleSelectItem(user)}>Edit</Dropdown.Item>
-                      <Dropdown.Item onClick={() => handleSelectItemDelete(user)}>Delete</Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
-                </div>
-              </td>
+               <Dropdown.Menu>
+                <Dropdown.Item onClick={() => handleSelectItem(user)}>Edit</Dropdown.Item>
+                <Dropdown.Item onClick={() => handleSelectItemDelete(user)}>Delete</Dropdown.Item>
+               </Dropdown.Menu>
+            </Dropdown>
+              </div>
+             </td>
 
               <td>
                 <User user={user} onDelete={handleSelectItemDelete} />
@@ -131,39 +153,57 @@ const UserList = () => {
 
       <Modal show={show} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Add New User</Modal.Title>
+          <Modal.Title>{selectedItem.id ? 'Edit User' : 'Add New User'}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <label>Name:</label>
           <input
             type="text"
             placeholder="Name"
-            value={newUser.name}
-            onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+            value={selectedItem.id ? selectedItem.name : newUser.name}
+            onChange={(e) => {
+              if (selectedItem.id) {
+                setSelectedItem({ ...selectedItem, name: e.target.value });
+              } else {
+                setNewUser({ ...newUser, name: e.target.value });
+              }
+            }}
           />
 
           <label>Email:</label>
           <input
             type="text"
             placeholder="Email"
-            value={newUser.email}
-            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+            value={selectedItem.id ? selectedItem.email : newUser.email}
+            onChange={(e) => {
+              if (selectedItem.id) {
+                setSelectedItem({ ...selectedItem, email: e.target.value });
+              } else {
+                setNewUser({ ...newUser, email: e.target.value });
+              }
+            }}
           />
 
           <label>Phone:</label>
           <input
             type="text"
             placeholder="Phone"
-            value={newUser.phone}
-            onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })}
+            value={selectedItem.id ? selectedItem.phone : newUser.phone}
+            onChange={(e) => {
+              if (selectedItem.id) {
+                setSelectedItem({ ...selectedItem, phone: e.target.value });
+              } else {
+                setNewUser({ ...newUser, phone: e.target.value });
+              }
+            }}
           />
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
-            Close
+            Cancel
           </Button>
-          <Button variant="primary" onClick={handleAddUser}>
-            Add User
+          <Button variant="primary" onClick={handleModalAction}>
+            {selectedItem.id ? 'Edit User' : 'Add User'}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -175,7 +215,7 @@ const UserList = () => {
         <Modal.Body>Are you sure you want to delete {selectedItem.name}?</Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseDelete}>
-            Close
+            Cancel
           </Button>
           <Button variant="primary" onClick={handleDeleteUser}>
             Delete
